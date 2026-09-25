@@ -27,8 +27,15 @@ builder.Services.AddScoped<IDbConnection>(_ =>
 var app = builder.Build();
 
 
-app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwagger(options =>
+{
+    options.RouteTemplate = "api/swagger/{documentName}/swagger.json";
+});
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/api/swagger/v1/swagger.json", "My API V1");
+    options.RoutePrefix = "api/swagger";
+});
 
 app.MapPost("/", async (
     InputData dto,
