@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: das_postgres
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: das_db
+    volumes:
+      - pgdata:/var/lib/postgresql 
+    networks:
+      - das-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d das_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: das_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@local.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      - db
+    networks:
+      - das-network
+
+  api:
+    image: mcr.microsoft.com/dotnet/sdk:10.0
+    working_dir: /src
+    volumes:
+        - ./DasTest:/src
+    environment:
+        ASPNETCORE_URLS: "http://+:8090"
+        ASPNETCORE_ENVIRONMENT: "Development"
+    ports:
+        - "8090:8090"
+    command: bash -c "dotnet restore && dotnet run --no-restore --urls http://+:8090"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - das-network
+
+networks:
+  das-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+  pgadmin_data:
