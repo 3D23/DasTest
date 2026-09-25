@@ -1,4 +1,4 @@
-﻿namespace DasTest.DTO
+﻿namespace DasTest
 {
     public static class ErrorCodes
     {

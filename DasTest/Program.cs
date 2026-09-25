@@ -68,9 +68,9 @@ app.MapPost("/", async (
 
     return Results.Json(response, statusCode: statusCode);
 }).WithName("Parse Input Data")
-.Produces<ParseResponse>(StatusCodes.Status200OK)
+    .Produces<ParseResponse>(StatusCodes.Status200OK)
     .Produces<ParseResponse>(StatusCodes.Status400BadRequest)
-   .WithSummary("Парсит HTML-страницу, извлекает элементы, email'ы и расшифровывает текст");
+    .WithSummary("Парсит HTML-страницу, извлекает элементы, email'ы и расшифровывает текст");
 
 using (var scope = app.Services.CreateScope())
 {
